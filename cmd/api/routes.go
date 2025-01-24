@@ -8,6 +8,6 @@ func (app *application) routes(server *gin.Engine) {
 	server.GET("/", app.home)
 	server.GET("/hello", app.hellowolrd)
 	server.GET("/movies",app.movies)
-	server.GET("/authenticate",app.authenticate)
+	server.POST("/authenticate",app.authenticate)
 }
  

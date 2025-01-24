@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,11 +8,16 @@ import (
 
 type Response struct {
 	Message string `json:"msg,omitempty"`
-	Error   string  `json:"error_msg,omitempty"`
+	Error   string `json:"error_msg,omitempty"`
 	Data    any    `json:"data,omitempty"`
 }
 
 func (app *application) ErrorJson(c *gin.Context, err error, code int) {
+	if err == nil {
+		c.JSON(code, Response{
+		})
+		return
+	}
 	c.JSON(code, Response{
 		Error: err.Error(),
 	})
@@ -60,20 +64,39 @@ func (app *application) movies(c *gin.Context) {
 
 func (app *application) authenticate(c *gin.Context) {
 	// read json payload
-
-
+	type Authentication struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	input := Authentication{}
+	// Parse and validate the JSON input
+	if err := c.ShouldBindJSON(&input); err != nil {
+		app.ErrorJson(c, err, http.StatusBadRequest)
+		return
+	}
 	//validate user against database
-
+	user, err := app.repo.GetUserByEmail(input.Email)
+	if err != nil {
+		app.ErrorJson(c, err, http.StatusInternalServerError)
+		return
+	}
+	if user == nil {
+		app.ErrorJson(c, nil, http.StatusUnauthorized)
+		return
+	}
 	//check password
-
+	if ok, err := user.PasswordMatches(input.Password); err!=nil || !ok {
+		app.ErrorJson(c, nil, http.StatusUnauthorized)
+		return
+	}
 
 	// create a jwt user
-	user := jwtUser{
+	jwt_user := jwtUser{
 		ID:        1,
-		FirstName: "firstname",
-		LastName:  "lastname",
+		FirstName: user.Name,
+		LastName:  user.LastName,
 	}
-	tokens, err := app.auth.GenerateTokenPair(&user)
+	tokens, err := app.auth.GenerateTokenPair(&jwt_user)
 	if err != nil {
 		app.ErrorJson(c, err, http.StatusInternalServerError)
 		return

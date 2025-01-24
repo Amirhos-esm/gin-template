@@ -1,0 +1,17 @@
+
+### Define variables
+# @base_url = http://localhost:8080/api/v1
+@base_url = http://127.0.0.1:8081
+@device_uuid = 514dab60-9592-44f3-8427-2b2e2874c5b4
+@password = adminadmin
+
+
+### 
+# set stream enable/disable . enable bool query param
+POST {{base_url}}/authenticate
+
+{
+    "email": "admin@example.com",
+    "password": "secret"
+}
+
