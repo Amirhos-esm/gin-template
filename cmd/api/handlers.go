@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -33,7 +32,7 @@ func (app *application) SendJson(c *gin.Context, data any) {
 func (app *application) hellowolrd(c *gin.Context) {
 
 	c.JSON(http.StatusOK, Response{
-		Message: "hello world",
+		Message: "hello world to " + c.GetString("id"),
 	})
 }
 
