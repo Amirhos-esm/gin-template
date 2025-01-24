@@ -6,8 +6,14 @@ func (app *application) routes(server *gin.Engine) {
 	server.Use(app.CORSMiddleware())
 
 	server.GET("/", app.home)
-	server.GET("/hello", app.hellowolrd)
 	server.GET("/movies",app.movies)
+
 	server.POST("/authenticate",app.authenticate)
+	server.GET("/refresh",app.refreshToken)
+	server.GET("/logout",app.logout)
+
+
+	server.GET("/hello", app.AuthRequiredMiddleware() ,app.hellowolrd)
+
 }
  

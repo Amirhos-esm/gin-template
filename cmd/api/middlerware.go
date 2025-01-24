@@ -26,3 +26,15 @@ func (app * application) CORSMiddleware() gin.HandlerFunc {
 		c.Next() // Proceed to the next middleware/handler
 	}
 }
+
+func (app *application) AuthRequiredMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		_, _, err := app.auth.GetTokenFromHeaderAndVerify(c.Writer,c.Request)
+		if err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		// Continue to the next middleware or handler
+		c.Next()
+	}
+}

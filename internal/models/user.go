@@ -15,12 +15,12 @@ type JSONB map[string]interface{}
 
 type User struct {
 	gorm.Model
-	Name     string    `json:"name" gorm:"size:255;not null"`
-	LastName string    `json:"last_name" gorm:"size:255;not null"`
-	UUID     uuid.UUID `json:"uuid" gorm:"type:char(36);not null;unique"`
-	Password string    `json:"-" gorm:"size:255;not null"`
-	Email    string    `json:"email" gorm:"size:255;not null;unique"`
-	MetaData JSONB     `json:"meta_data" gorm:"type:json"` // Custom serialization required
+	FirstName string    `json:"first_name" gorm:"size:255;not null"`
+	LastName  string    `json:"last_name" gorm:"size:255;not null"`
+	UUID      uuid.UUID `json:"uuid" gorm:"type:char(36);not null;unique"`
+	Password  string    `json:"-" gorm:"size:255;not null"`
+	Email     string    `json:"email" gorm:"size:255;not null;unique"`
+	MetaData  JSONB     `json:"meta_data" gorm:"type:json"` // Custom serialization required
 }
 
 // Implement driver.Valuer for JSONB (serialization to DB)

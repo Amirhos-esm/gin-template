@@ -10,8 +10,27 @@
 # set stream enable/disable . enable bool query param
 POST {{base_url}}/authenticate
 
+
 {
     "email": "admin@example.com",
     "password": "secret"
 }
 
+
+### 
+# set stream enable/disable . enable bool query param
+GET {{base_url}}/hello
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbSIsImV4cCI6MTczNzcyNjg1OSwiaWF0IjoxNzM3NzI1OTU5LCJpc3MiOiJleGFtcGxlLmNvbSIsIm5hbWUiOiIgZXMiLCJzdWIiOiIxIiwidHlwIjoiSldUIn0.NW4sl6ISdfbSpHyyw45H3sAbvh3vwe1PtaNaZWrKY3Y
+Set-Cookie: __Host-refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzc4MTIzNTksImlhdCI6MTczNzcyNTk1OSwic3ViIjoiMSJ9.1UtL2R8dbP_OGFqYlrRVND0FPsWBQzw_DSX3_rF4Q1c; Path=/; Domain=example.com; Expires=Sat, 25 Jan 2025 13:39:19 GMT; Max-Age=86400; HttpOnly; Secure; SameSite=Strict
+
+### 
+# set stream enable/disable . enable bool query param
+GET {{base_url}}/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbSIsImV4cCI6MTczNzcyNjg1OSwiaWF0IjoxNzM3NzI1OTU5LCJpc3MiOiJleGFtcGxlLmNvbSIsIm5hbWUiOiIgZXMiLCJzdWIiOiIxIiwidHlwIjoiSldUIn0.NW4sl6ISdfbSpHyyw45H3sAbvh3vwe1PtaNaZWrKY3Y
+Set-Cookie: __Host-refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzc4MTIzNTksImlhdCI6MTczNzcyNTk1OSwic3ViIjoiMSJ9.1UtL2R8dbP_OGFqYlrRVND0FPsWBQzw_DSX3_rF4Q1c; Path=/; Domain=example.com; Expires=Sat, 25 Jan 2025 13:39:19 GMT; Max-Age=86400; HttpOnly; Secure; SameSite=Strict
+
+### 
+# set stream enable/disable . enable bool query param
+GET {{base_url}}/refresh
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbSIsImV4cCI6MTczNzcyNjg1OSwiaWF0IjoxNzM3NzI1OTU5LCJpc3MiOiJleGFtcGxlLmNvbSIsIm5hbWUiOiIgZXMiLCJzdWIiOiIxIiwidHlwIjoiSldUIn0.NW4sl6ISdfbSpHyyw45H3sAbvh3vwe1PtaNaZWrKY3Y
+Set-Cookie: __Host-refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzc4MTIzNTksImlhdCI6MTczNzcyNTk1OSwic3ViIjoiMSJ9.1UtL2R8dbP_OGFqYlrRVND0FPsWBQzw_DSX3_rF4Q1c; Path=/; Domain=example.com; Expires=Sat, 25 Jan 2025 13:39:19 GMT; Max-Age=86400; HttpOnly; Secure; SameSite=Strict
