@@ -64,12 +64,23 @@ func (app *application) movies(c *gin.Context) {
 
 }
 
+type Authentication struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+// authenticate handles user authentication by validating the provided email and password,
+// generating a JWT token pair upon successful authentication, and setting a refresh token cookie.
+//
+// @Summary Authenticate user
+// @Description Authenticate user with email and password, and return JWT token pair
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Param Authentication body Authentication true "User credentials"
+// @Success 200 {object} TokenPairs "JWT token pair"
+// @Router /authenticate [post]
 func (app *application) authenticate(c *gin.Context) {
 	// read json payload
-	type Authentication struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
 	input := Authentication{}
 	// Parse and validate the JSON input
 	if err := c.ShouldBindJSON(&input); err != nil {

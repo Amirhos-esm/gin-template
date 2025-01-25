@@ -17,6 +17,8 @@ type application struct {
 	Host   string
 	auth   Auth
 	repo   repository.DatabaseRepository
+	ExposeOpenApi bool
+
 }
 
 func main() {
@@ -30,7 +32,8 @@ func main() {
 	// read from command line
 	flag.StringVar(&app.DSN, "dsn", "host=localhost port=5432 user=postgres password=postgres dbname=movies sslmode=disable timezone=UTC connect_timeout=5", "Postgres connection string")
 	flag.StringVar(&app.Host, "host", "localhost:8081", "host address")
-	flag.StringVar(&database_url, "db_url", "mysql://root:123456789@127.0.0.1:3306/go_db", "data base url.sqlite://tmp/test.db or mysql://root:123456789@127.0.0.1:3306/go_db or postgres://admin:root@localhost:5432/test_db ")
+	flag.BoolVar(&app.ExposeOpenApi, "openapi", true, "expose open api")
+	flag.StringVar(&database_url, "db_url", "sqlite://tmp/test.db", "data base url.sqlite://tmp/test.db or mysql://root:123456789@127.0.0.1:3306/go_db or postgres://admin:root@localhost:5432/test_db ")
 	flag.StringVar(&app.auth.Secret, "jwt-secret", "verysecret", "signing secret")
 	flag.StringVar(&app.auth.Issuer, "jwt-issuer", "example.com", "signing issuer")
 	flag.StringVar(&app.auth.Audience, "jwt-audience", "example.com", "signing audience")

@@ -1,0 +1,42 @@
+definitions:
+  main.Authentication:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  main.TokenPairs:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /authenticate:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password, and return JWT token
+        pair
+      parameters:
+      - description: User credentials
+        in: body
+        name: Authentication
+        required: true
+        schema:
+          $ref: '#/definitions/main.Authentication'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token pair
+          schema:
+            $ref: '#/definitions/main.TokenPairs'
+      summary: Authenticate user
+      tags:
+      - authentication
+swagger: "2.0"
