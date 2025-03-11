@@ -124,3 +124,35 @@ func (t *MLogger) Println(format string, a ...interface{}) {
 	header := createHeader(t,"DEBUG",ColorInfo)
 	fmt.Println(header + fmt.Sprintf(format, a...))
 }
+
+func (t *MLogger) Fatal(a ...interface{}) {
+	if !t.enable || t.level > CRITICAL {
+		return
+	}
+	header := createHeader(t, "CRITICAL", ColorInfo)
+	fmt.Println(header, a)
+}
+func (t *MLogger) Fatalln(a ...interface{}) {
+	t.Fatal(a)
+}
+func (t *MLogger) Fatalf(format string, a ...interface{}) {
+	if !t.enable || t.level > CRITICAL {
+		return
+	}
+	header := createHeader(t, "CRITICAL", ColorInfo)
+	fmt.Println(header, fmt.Sprintf(format, a...))
+}
+
+func (t *MLogger) Panic(a ...interface{}) {
+	t.Fatal(a)
+	s := fmt.Sprint(a...)
+	panic(s)
+}
+func (t *MLogger) Panicln(a ...interface{}) {
+	t.Panic(a)
+}
+func (t *MLogger) Panicf(format string, a ...interface{}) {
+	t.Fatalf(format,a...)
+	s := fmt.Sprintf(format, a...)
+	panic(s)
+}
