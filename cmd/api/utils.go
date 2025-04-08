@@ -1,80 +1,74 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"reflect"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-// GetQuery assigns query values from the context to the provided pointers,
-// based on the provided query parameter names and pointers.
-func GetQuery(c *gin.Context, nameAndArgs ...any) error {
-	if len(nameAndArgs)%2 != 0 {
-		return errors.New("must pass pairs of query name and pointer")
-	}
+// // GetQuery assigns query values from the context to the provided pointers,
+// // based on the provided query parameter names and pointers.
+// func GetQuery(c *gin.Context, nameAndArgs ...any) error {
+// 	if len(nameAndArgs)%2 != 0 {
+// 		return errors.New("must pass pairs of query name and pointer")
+// 	}
 
-	for i := 0; i < len(nameAndArgs); i += 2 {
-		fieldName, ok := nameAndArgs[i].(string)
-		if !ok {
-			return errors.New("query parameter name must be a string")
-		}
+// 	for i := 0; i < len(nameAndArgs); i += 2 {
+// 		fieldName, ok := nameAndArgs[i].(string)
+// 		if !ok {
+// 			return errors.New("query parameter name must be a string")
+// 		}
 
-		arg := nameAndArgs[i+1]
-		val := reflect.ValueOf(arg)
-		if val.Kind() != reflect.Ptr || val.IsNil() {
-			return fmt.Errorf("must pass a pointer for %s", fieldName)
-		}
+// 		arg := nameAndArgs[i+1]
+// 		val := reflect.ValueOf(arg)
+// 		if val.Kind() != reflect.Ptr || val.IsNil() {
+// 			return fmt.Errorf("must pass a pointer for %s", fieldName)
+// 		}
 
-		valElem := val.Elem()
-		// Fetch the query value based on the parameter name
-		queryValue, isOk := c.GetQuery(fieldName)
-		if !isOk {
-			return fmt.Errorf("%s(%s) is required", fieldName, valElem.Kind())
-		}
+// 		valElem := val.Elem()
+// 		// Fetch the query value based on the parameter name
+// 		queryValue, isOk := c.GetQuery(fieldName)
+// 		if !isOk {
+// 			return fmt.Errorf("%s(%s) is required", fieldName, valElem.Kind())
+// 		}
 
-		// Set the appropriate type based on the kind of the argument
+// 		// Set the appropriate type based on the kind of the argument
 
-		switch valElem.Kind() {
-		case reflect.Bool:
-			parsedBool, err := strconv.ParseBool(queryValue)
-			if err != nil {
-				return fmt.Errorf("%s must be a boolean", fieldName)
-			}
-			valElem.SetBool(parsedBool)
-		case reflect.String:
-			valElem.SetString(queryValue)
-		case reflect.Int:
-			parsedInt, err := strconv.Atoi(queryValue)
-			if err != nil {
-				return fmt.Errorf("%s must be an integer", fieldName)
-			}
-			valElem.SetInt(int64(parsedInt))
-		default:
-			return fmt.Errorf("%s has unsupported type", fieldName)
-		}
-	}
-	return nil
-}
+// 		switch valElem.Kind() {
+// 		case reflect.Bool:
+// 			parsedBool, err := strconv.ParseBool(queryValue)
+// 			if err != nil {
+// 				return fmt.Errorf("%s must be a boolean", fieldName)
+// 			}
+// 			valElem.SetBool(parsedBool)
+// 		case reflect.String:
+// 			valElem.SetString(queryValue)
+// 		case reflect.Int:
+// 			parsedInt, err := strconv.Atoi(queryValue)
+// 			if err != nil {
+// 				return fmt.Errorf("%s must be an integer", fieldName)
+// 			}
+// 			valElem.SetInt(int64(parsedInt))
+// 		default:
+// 			return fmt.Errorf("%s has unsupported type", fieldName)
+// 		}
+// 	}
+// 	return nil
+// }
 
 type ParamConstraint interface {
-	~int | ~int8 | ~int16 | ~int32 | ~int64 |
-		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 |
-		~float32 | ~float64 |
-		~bool |
-		~string
+	int | int8 | int16 | int32 | int64 |
+		uint | uint8 | uint16 | uint32 | uint64 |
+		float32 | float64 |
+		bool |
+		string | uuid.UUID
 }
 
-func GetPathParam[T ParamConstraint](c *gin.Context, key string, validator func(*T) error) (T, error) {
+func ParseParam[T ParamConstraint](key, paramValue string, validator func(T) error) (T, error) {
 	var output T
-
-	paramValue := c.Param(key)
-	if paramValue == "" {
-		return output, fmt.Errorf("path parameter %s is required", key)
-	}
-
 	var err error
 	switch any(output).(type) {
 	case bool:
@@ -142,6 +136,10 @@ func GetPathParam[T ParamConstraint](c *gin.Context, key string, validator func(
 		var parsed float64
 		parsed, err = strconv.ParseFloat(paramValue, 64)
 		output = any(parsed).(T)
+	case uuid.UUID:
+		var parsed uuid.UUID
+		parsed, err = uuid.Parse(paramValue)
+		output = any(parsed).(T)
 
 	}
 	if err != nil {
@@ -149,10 +147,47 @@ func GetPathParam[T ParamConstraint](c *gin.Context, key string, validator func(
 	}
 	// Validate the parsed value
 	if validator != nil {
-		if err := validator(&output); err != nil {
+		if err := validator(output); err != nil {
 			return output, err
 		}
 	}
 	return output, nil
+}
 
+func GetPathParam[T ParamConstraint](c *gin.Context, key string, validator func(T) error) (T, error) {
+
+	paramValue, ok := c.Params.Get(key)
+	if !ok {
+		var output T
+		return output, fmt.Errorf("path parameter %s is required", key)
+	}
+
+	return ParseParam(key, paramValue, validator)
+
+}
+func GetQueryParam[T ParamConstraint](c *gin.Context, key string, validator func(T) error) (T, error) {
+
+	paramValue, ok := c.GetQuery(key)
+	if !ok {
+		var output T
+		return output, fmt.Errorf("Query parameter %s is required", key)
+	}
+
+	return ParseParam(key, paramValue, validator)
+
+}
+
+func SendError(c *gin.Context, err error, code int) {
+	if err == nil {
+		c.JSON(code, Response{})
+		return
+	}
+	c.JSON(code, Response{
+		Error: err.Error(),
+	})
+}
+func SendJson(c *gin.Context, data any) {
+	c.JSON(http.StatusOK, Response{
+		Data: data,
+	})
 }
