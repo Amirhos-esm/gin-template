@@ -27,17 +27,16 @@ func GetQuery(c *gin.Context, nameAndArgs ...any) error {
 		if val.Kind() != reflect.Ptr || val.IsNil() {
 			return fmt.Errorf("must pass a pointer for %s", fieldName)
 		}
-		
 
 		valElem := val.Elem()
 		// Fetch the query value based on the parameter name
 		queryValue, isOk := c.GetQuery(fieldName)
 		if !isOk {
-			return fmt.Errorf("%s(%s) is required", fieldName,valElem.Kind())
+			return fmt.Errorf("%s(%s) is required", fieldName, valElem.Kind())
 		}
 
 		// Set the appropriate type based on the kind of the argument
-		
+
 		switch valElem.Kind() {
 		case reflect.Bool:
 			parsedBool, err := strconv.ParseBool(queryValue)
@@ -60,3 +59,100 @@ func GetQuery(c *gin.Context, nameAndArgs ...any) error {
 	return nil
 }
 
+type ParamConstraint interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 |
+		~float32 | ~float64 |
+		~bool |
+		~string
+}
+
+func GetPathParam[T ParamConstraint](c *gin.Context, key string, validator func(*T) error) (T, error) {
+	var output T
+
+	paramValue := c.Param(key)
+	if paramValue == "" {
+		return output, fmt.Errorf("path parameter %s is required", key)
+	}
+
+	var err error
+	switch any(output).(type) {
+	case bool:
+		var parsed bool
+		parsed, err = strconv.ParseBool(paramValue)
+		output = any(parsed).(T)
+
+	case string:
+		output = any(paramValue).(T)
+
+	case int:
+		var parsed int64
+		parsed, err = strconv.ParseInt(paramValue, 10, 0)
+		output = any(parsed).(T)
+
+	case int8:
+		var parsed int64
+		parsed, err = strconv.ParseInt(paramValue, 10, 8)
+		output = any(parsed).(T)
+
+	case int16:
+		var parsed int64
+		parsed, err = strconv.ParseInt(paramValue, 10, 16)
+		output = any(parsed).(T)
+
+	case int32:
+		var parsed int64
+		parsed, err = strconv.ParseInt(paramValue, 10, 32)
+		output = any(parsed).(T)
+
+	case int64:
+		var parsed int64
+		parsed, err = strconv.ParseInt(paramValue, 10, 64)
+		output = any(parsed).(T)
+
+	case uint:
+		var parsed uint64
+		parsed, err = strconv.ParseUint(paramValue, 10, 0)
+		output = any(parsed).(T)
+
+	case uint8:
+		var parsed uint64
+		parsed, err = strconv.ParseUint(paramValue, 10, 8)
+		output = any(parsed).(T)
+
+	case uint16:
+		var parsed uint64
+		parsed, err = strconv.ParseUint(paramValue, 10, 16)
+		output = any(parsed).(T)
+
+	case uint32:
+		var parsed uint64
+		parsed, err = strconv.ParseUint(paramValue, 10, 32)
+		output = any(parsed).(T)
+
+	case uint64:
+		var parsed uint64
+		parsed, err = strconv.ParseUint(paramValue, 10, 64)
+		output = any(parsed).(T)
+	case float32:
+		var parsed float64
+		parsed, err = strconv.ParseFloat(paramValue, 32)
+		output = any(parsed).(T)
+	case float64:
+		var parsed float64
+		parsed, err = strconv.ParseFloat(paramValue, 64)
+		output = any(parsed).(T)
+
+	}
+	if err != nil {
+		return output, fmt.Errorf("path parameter %s is invalid: %w", key, err)
+	}
+	// Validate the parsed value
+	if validator != nil {
+		if err := validator(&output); err != nil {
+			return output, err
+		}
+	}
+	return output, nil
+
+}
